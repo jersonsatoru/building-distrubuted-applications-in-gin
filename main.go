@@ -1,3 +1,17 @@
+// 	Recipes API
+// 	This is a simple recipes API. You can find out more about the API at  google, thanks
+//	Schemes: http
+//	Host: localhost:8080
+//	BasePath:
+//	Version: 1.0.0
+//	Contact: jersonsatoru@yahoo.com.br
+//
+//	Consumes:
+//	- application/json
+//
+//	Produces:
+//	- application/json
+// swagger:meta
 package main
 
 import (
@@ -25,6 +39,14 @@ func main() {
 	r.Run()
 }
 
+// swagger:operation POST /recipes recipe createRecipe
+// Create a new recipe
+// ---
+// produces:
+// - apllication/json
+// responses:
+//   '201':
+//     description: Successful operation
 func NewRecipeHandler(c *gin.Context) {
 	var recipe Recipe
 	err := c.ShouldBindJSON(&recipe)
@@ -43,12 +65,34 @@ func NewRecipeHandler(c *gin.Context) {
 	})
 }
 
+// swagger:operation GET /recipes recipe listRecipe
+// Returns list of recipes
+// ---
+// produces:
+// - application/json
+// responses:
+//   '200':
+//     description: Successful operation
 func ListRecipesHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"data": Recipes,
 	})
 }
 
+// swagger:operation DELETE /recipes/{id} recipe deleteRecipe
+// Delete a recipe by its ID
+//---
+// parameters:
+// - name: id
+//   in: path
+//   description: ID of the recipe
+//   required: true
+//   type: string
+// produces:
+// - application/json
+// responses:
+//   '204':
+//     description: Successful operation
 func DeleteRecipeHandler(c *gin.Context) {
 	id := c.Params.ByName("id")
 	registryIndex := -1
@@ -65,6 +109,20 @@ func DeleteRecipeHandler(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
+// swagger:operation PUT /recipes recipe updateRecipe
+// Update a recipe
+// ---
+// parameters:
+// - in: path
+//   name: id
+//   type: string
+//   description: ID of the recipe
+//   required: true
+// produces:
+// - application/json
+// responses:
+//   '200':
+//     description: Successful operation
 func UpdateRecipeHandler(c *gin.Context) {
 	id := c.Params.ByName("id")
 	var recipe Recipe
@@ -92,6 +150,20 @@ func UpdateRecipeHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, Recipes[recipeIndex])
 }
 
+// swagger:operation GET /recipes/search recipe searchRecipe
+// Search for recipes filtered by tag
+// ---
+// parameters:
+// - in: query
+//   name: tag
+//   description: Recipe's tag that you are looking for
+//   type: string
+//   required: true
+// produces:
+// - application/json
+// responses:
+//   '200':
+//     description: Successful operation
 func SearchRecipesHandler(c *gin.Context) {
 	searchedTag := c.Query("tag")
 	found := []*Recipe{}

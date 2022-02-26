@@ -1,0 +1,87 @@
+consumes:
+- application/json
+host: localhost:8080
+info:
+  contact:
+    email: jersonsatoru@yahoo.com.br
+  description: |-
+    Recipes API
+    This is a simple recipes API. You can find out more about the API at  google, thanks
+  version: 1.0.0
+paths:
+  /recipes:
+    get:
+      description: Returns list of recipes
+      operationId: listRecipe
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful operation
+      tags:
+      - recipe
+    post:
+      description: Create a new recipe
+      operationId: createRecipe
+      produces:
+      - apllication/json
+      responses:
+        "201":
+          description: Successful operation
+      tags:
+      - recipe
+    put:
+      description: Update a recipe
+      operationId: updateRecipe
+      parameters:
+      - description: ID of the recipe
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful operation
+      tags:
+      - recipe
+  /recipes/{id}:
+    delete:
+      description: Delete a recipe by its ID
+      operationId: deleteRecipe
+      parameters:
+      - description: ID of the recipe
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: Successful operation
+      tags:
+      - recipe
+  /recipes/search:
+    get:
+      description: Search for recipes filtered by tag
+      operationId: searchRecipe
+      parameters:
+      - description: Recipe's tag that you are looking for
+        in: query
+        name: tag
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful operation
+      tags:
+      - recipe
+produces:
+- application/json
+schemes:
+- http
+swagger: "2.0"
