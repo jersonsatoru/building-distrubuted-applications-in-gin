@@ -15,19 +15,45 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rs/xid"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 var (
-	Recipes = make([]Recipe, 0)
+	Recipes    = make([]Recipe, 0)
+	ctx        context.Context
+	err        error
+	client     *mongo.Client
+	collection *mongo.Collection
 )
+
+func init() {
+	ctx = context.Background()
+	client, err = mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("MONGO_URI")))
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err = client.Ping(context.TODO(), readpref.Primary()); err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Connected to MongoDB")
+	collection = client.Database(os.Getenv("MONGO_DATABASE")).Collection("recipes")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 func main() {
 	r := gin.Default()
@@ -54,11 +80,13 @@ func NewRecipeHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, nil)
 		return
 	}
-	id := xid.New().String()
-	publishedAt := time.Now()
-	recipe.ID = id
-	recipe.PublishedAt = publishedAt
-	Recipes = append(Recipes, recipe)
+	recipe.ID = primitive.NewObjectID()
+	recipe.PublishedAt = time.Now()
+	_, err = collection.InsertOne(ctx, recipe)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
 	c.Writer.Header().Set("Location", fmt.Sprintf("/recipes/%s", recipe.ID))
 	c.JSON(http.StatusCreated, map[string]interface{}{
 		"recipe": recipe,
@@ -74,8 +102,23 @@ func NewRecipeHandler(c *gin.Context) {
 //   '200':
 //     description: Successful operation
 func ListRecipesHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"data": Recipes,
+	cur, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+	defer cur.Close(ctx)
+	recipes := make([]Recipe, 0)
+	for cur.Next(ctx) {
+		var recipe Recipe
+		if err := cur.Decode(&recipe); err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+		recipes = append(recipes, recipe)
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"data": recipes,
 	})
 }
 
@@ -94,7 +137,11 @@ func ListRecipesHandler(c *gin.Context) {
 //   '204':
 //     description: Successful operation
 func DeleteRecipeHandler(c *gin.Context) {
-	id := c.Params.ByName("id")
+	id, err := primitive.ObjectIDFromHex(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
 	registryIndex := -1
 	for index, recipe := range Recipes {
 		if recipe.ID == id {
@@ -103,10 +150,10 @@ func DeleteRecipeHandler(c *gin.Context) {
 		}
 	}
 	if registryIndex == -1 {
-		c.JSON(http.StatusNotFound, nil)
+		c.JSON(http.StatusNotFound, "record not found")
 		return
 	}
-	c.JSON(http.StatusNoContent, nil)
+	c.Writer.WriteHeader(http.StatusNoContent)
 }
 
 // swagger:operation PUT /recipes recipe updateRecipe
@@ -124,9 +171,13 @@ func DeleteRecipeHandler(c *gin.Context) {
 //   '200':
 //     description: Successful operation
 func UpdateRecipeHandler(c *gin.Context) {
-	id := c.Params.ByName("id")
+	id, err := primitive.ObjectIDFromHex(c.Params.ByName("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
 	var recipe Recipe
-	err := c.ShouldBindJSON(&recipe)
+	err = c.ShouldBindJSON(&recipe)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, nil)
 		return
@@ -182,10 +233,10 @@ func SearchRecipesHandler(c *gin.Context) {
 }
 
 type Recipe struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	Tags         []string  `json:"tags"`
-	Ingredients  []string  `json:"ingredients"`
-	Instructions []string  `json:"instructions"`
-	PublishedAt  time.Time `json:"publisehdAt"`
+	ID           primitive.ObjectID `json:"id" bson:"_id"`
+	Name         string             `json:"name" bson:"name"`
+	Tags         []string           `json:"tags" bson:"tags"`
+	Ingredients  []string           `json:"ingredients" bson:"ingredients"`
+	Instructions []string           `json:"instructions" bson:"instructions"`
+	PublishedAt  time.Time          `json:"publishedAt" bson:"publishedAt"`
 }
