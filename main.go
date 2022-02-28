@@ -16,6 +16,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -142,17 +143,23 @@ func DeleteRecipeHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	registryIndex := -1
-	for index, recipe := range Recipes {
-		if recipe.ID == id {
-			registryIndex = index
-			Recipes = append(Recipes[:index], Recipes[index+1:]...)
+	singleRow := collection.FindOne(ctx, bson.M{"_id": id})
+	if err := singleRow.Err(); err != nil {
+		switch {
+		case errors.Is(err, mongo.ErrNoDocuments):
+			c.JSON(http.StatusNotFound, "recipe not found")
+		default:
+			c.JSON(http.StatusInternalServerError, err)
 		}
-	}
-	if registryIndex == -1 {
-		c.JSON(http.StatusNotFound, "record not found")
 		return
 	}
+	var recipe Recipe
+	err = singleRow.Decode(&recipe)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+	collection.DeleteOne(ctx, bson.M{"_id": id})
 	c.Writer.WriteHeader(http.StatusNoContent)
 }
 
