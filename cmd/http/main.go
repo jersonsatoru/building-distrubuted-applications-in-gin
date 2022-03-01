@@ -24,7 +24,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/jersonsatoru/building-distributed-applications-in-gin/cmd/http/handlers"
+	"github.com/jersonsatoru/building-distributed-applications-in-gin/cmd/http/middlewares"
 	"github.com/jersonsatoru/building-distributed-applications-in-gin/internal/database"
 )
 
@@ -38,10 +40,31 @@ func main() {
 		log.Fatal(err)
 	}
 	recipeHandler := handlers.NewRecipeHandler(context.TODO(), db, redisClient)
+	authHandler := handlers.NewAuthHandler(context.TODO(), db)
+
+	r := gin.Default()
+	authRouter := r.Group("/api/recipe/v1")
+	{
+		authRouter.POST("/signin", authHandler.SignInHandler)
+		authRouter.POST("/refresh", authHandler.RefreshTokenHandler)
+	}
+	recipeRouter := r.Group("/api/recipe/v1")
+	{
+		recipeRouter.GET("/recipes", recipeHandler.ListRecipesHandler)
+	}
+	protectedRouter := recipeRouter.Group("/")
+	protectedRouter.Use(middlewares.Auth())
+	{
+		protectedRouter.POST("/recipes", recipeHandler.NewRecipeHandler)
+		protectedRouter.PUT("/recipes/:id", recipeHandler.UpdateRecipeHandler)
+		protectedRouter.DELETE("/recipes/:id", recipeHandler.DeleteRecipeHandler)
+		protectedRouter.GET("/recipes/search", recipeHandler.SearchRecipesHandler)
+	}
+
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 	srv := http.Server{
 		Addr:    port,
-		Handler: recipeHandler.RecipeRoutes(),
+		Handler: r,
 	}
 	shutdownErr := make(chan error)
 	go func() {
