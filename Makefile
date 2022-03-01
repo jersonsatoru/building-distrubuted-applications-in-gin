@@ -24,3 +24,12 @@ db/pg:
 		-e POSTGRES_USER=postgres \
 		-e POSTGRES_DB=app_gin \
 		postgres:14.1-alpine3.15
+
+db/redis:
+	docker stop redis || true
+	docker rm redis || true
+	docker run -d \
+		--name=redis \
+		-p 6379:6379 \
+		-v ${PWD}/redis.conf:/usr/local/etc/redis \
+		redis:7.0-rc2-alpine3.15
