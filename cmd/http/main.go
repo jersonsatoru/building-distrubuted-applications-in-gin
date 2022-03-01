@@ -24,6 +24,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/jersonsatoru/building-distributed-applications-in-gin/cmd/http/handlers"
 	"github.com/jersonsatoru/building-distributed-applications-in-gin/internal/database"
 )
 
@@ -36,7 +37,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	recipeHandler := NewRecipeHandler(context.TODO(), db, redisClient)
+	recipeHandler := handlers.NewRecipeHandler(context.TODO(), db, redisClient)
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 	srv := http.Server{
 		Addr:    port,
