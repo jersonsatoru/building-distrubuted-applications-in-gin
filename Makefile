@@ -1,3 +1,7 @@
+.PHONY: app/run
+app/run:
+	PORT=8080 go run ./cmd/http
+
 .PHONY: db/mongodb
 db/mongodb:
 	docker stop mongodb || true
