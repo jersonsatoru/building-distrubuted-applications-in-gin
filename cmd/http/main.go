@@ -32,7 +32,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	recipeHandler := NewRecipeHandler(context.TODO(), db)
+	redisClient, err := database.GetRedisConnection(os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	recipeHandler := NewRecipeHandler(context.TODO(), db, redisClient)
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 	srv := http.Server{
 		Addr:    port,

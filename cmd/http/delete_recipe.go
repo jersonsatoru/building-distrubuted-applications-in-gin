@@ -48,5 +48,6 @@ func (app *RecipeHandler) DeleteRecipeHandler(c *gin.Context) {
 		return
 	}
 	app.collection.DeleteOne(app.ctx, bson.M{"_id": id})
+	app.redisClient.Del("recipes")
 	c.Writer.WriteHeader(http.StatusNoContent)
 }

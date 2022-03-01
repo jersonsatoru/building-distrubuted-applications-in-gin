@@ -32,6 +32,7 @@ func (app *RecipeHandler) NewRecipeHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
+	app.redisClient.Del("recipes")
 	c.Writer.Header().Set("Location", fmt.Sprintf("/recipes/%s", recipe.ID))
 	c.JSON(http.StatusCreated, map[string]interface{}{
 		"recipe": recipe,

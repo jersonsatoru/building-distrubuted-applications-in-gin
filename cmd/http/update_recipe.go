@@ -64,5 +64,6 @@ func (app *RecipeHandler) UpdateRecipeHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
+	app.redisClient.Del("recipes")
 	c.JSON(http.StatusOK, map[string]interface{}{"recipe": recipe})
 }
