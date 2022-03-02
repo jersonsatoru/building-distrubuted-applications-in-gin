@@ -30,6 +30,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
@@ -59,6 +60,7 @@ func main() {
 	authHandler := handlers.NewAuthHandler(context.TODO(), db.Collection("auth"))
 
 	r := gin.Default()
+	r.Use(cors.Default())
 	host := fmt.Sprintf("%s:%s", os.Getenv("REDIS_HOST"), os.Getenv("REDIS_PORT"))
 	store, err := redis.NewStore(10, "tcp", host, "", []byte("secret"))
 	if err != nil {

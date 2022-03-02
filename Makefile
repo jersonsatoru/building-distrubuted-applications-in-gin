@@ -41,3 +41,11 @@ auth/oauth2:
 		--url https://dev-a9-nztvy.us.auth0.com/oauth/token \
 		--header 'content-type: application/json' \
 		--data '{"client_id":"ZyWQelqGRcVXGyeez3aOJMrxEKMrxesg","client_secret":"FEqckbHFKU6WoFGKtfZrrWgsE4qskpVIY1xk06G7ljSCAvgUhIkVaubl5MDZNEBW","audience":"https://dev-a9-nztvy.us.auth0.com/api/v2/","grant_type":"client_credentials"}'
+
+.PHONY: swagger/gen
+swagger/gen:
+	PORT=8080 swagger generate spec -o ./swagger.yaml --scan-models
+
+.PHONY: swagger/serve
+swagger/serve:
+	PORT=8080 swagger serve --flavor swagger --no-open ./swagger.yaml
