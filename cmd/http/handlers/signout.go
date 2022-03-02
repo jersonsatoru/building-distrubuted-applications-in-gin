@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// swagger:operation /signout token signout
+// swagger:operation POST /signout token signout
 // Log out and clear the session client
 // ---
 // produces:

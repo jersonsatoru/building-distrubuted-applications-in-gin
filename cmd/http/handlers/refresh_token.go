@@ -11,12 +11,14 @@ import (
 
 // swagger:operation POST /refresh token refreshToken
 // Refresh JWT Token
-// --
+// ---
 // produces:
-// - application/jons
+// - application/json
 // responses:
 //   '200':
 //     description: Successful operation
+//   '401':
+//     description: Invalid credentials
 func (h *AuthHandler) RefreshTokenHandler(c *gin.Context) {
 	bearer := c.GetHeader("Authorization")
 	claims := &Claims{}

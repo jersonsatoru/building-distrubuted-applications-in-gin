@@ -1,6 +1,59 @@
 consumes:
 - application/json
-host: localhost:8080
+definitions:
+  ObjectID:
+    items:
+      format: uint8
+      type: integer
+    title: ObjectID is the BSON ObjectID type.
+    type: array
+    x-go-package: go.mongodb.org/mongo-driver/bson/primitive
+  recipe:
+    properties:
+      id:
+        $ref: '#/definitions/ObjectID'
+      ingredients:
+        items:
+          type: string
+        type: array
+        x-go-name: Ingredients
+      instructions:
+        items:
+          type: string
+        type: array
+        x-go-name: Instructions
+      name:
+        type: string
+        x-go-name: Name
+      publishedAt:
+        format: date-time
+        type: string
+        x-go-name: PublishedAt
+      tags:
+        items:
+          type: string
+        type: array
+        x-go-name: Tags
+    type: object
+    x-go-name: Recipe
+    x-go-package: github.com/jersonsatoru/building-distributed-applications-in-gin/internal/models
+  user:
+    properties:
+      password:
+        description: User's login
+        type: string
+        x-go-name: Password
+      username:
+        description: User's password
+        type: string
+        x-go-name: Username
+    required:
+    - username
+    - password
+    type: object
+    x-go-name: User
+    x-go-package: github.com/jersonsatoru/building-distributed-applications-in-gin/internal/models
+host: http://api.recipes.io:44004
 info:
   contact:
     email: jersonsatoru@yahoo.com.br
@@ -80,8 +133,48 @@ paths:
           description: Successful operation
       tags:
       - recipe
+  /refresh:
+    post:
+      description: Refresh JWT Token
+      operationId: refreshToken
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful operation
+        "401":
+          description: Invalid credentials
+      tags:
+      - token
+  /refresh_token:
+    post:
+      description: Refresh JWT Token
+      operationId: refreshToken
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successful operation
+      tags:
+      - token
+  /signout:
+    post:
+      description: Log out and clear the session client
+      operationId: signout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successful operation
+      tags:
+      - token
 produces:
 - application/json
 schemes:
-- http
+- https
+securityDefinitions:
+  api_key:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

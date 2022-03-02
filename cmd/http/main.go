@@ -1,10 +1,15 @@
 // 	Recipes API
 // 	This is a simple recipes API. You can find out more about the API at  google, thanks
-//	Schemes: http
-//	Host: localhost:8080
+//	Schemes: https
+//	Host: http://api.recipes.io:44004
 //	BasePath:
 //	Version: 1.0.0
 //	Contact: jersonsatoru@yahoo.com.br
+//  SecurityDefinitions:
+//    api_key:
+//      type: apiKey
+//      name: Authorization
+//      in: header
 //
 //	Consumes:
 //	- application/json
@@ -71,7 +76,7 @@ func main() {
 		recipeRouter.GET("/recipes", recipeHandler.ListRecipesHandler)
 	}
 	protectedRouter := recipeRouter.Group("/")
-	protectedRouter.Use(middlewares.AuthSession())
+	protectedRouter.Use(middlewares.OAuth2Session())
 	{
 		protectedRouter.POST("/recipes", recipeHandler.NewRecipeHandler)
 		protectedRouter.PUT("/recipes/:id", recipeHandler.UpdateRecipeHandler)
@@ -79,9 +84,9 @@ func main() {
 		protectedRouter.GET("/recipes/search", recipeHandler.SearchRecipesHandler)
 	}
 
-	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
+	// port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 	srv := http.Server{
-		Addr:    port,
+		Addr:    ":44004",
 		Handler: r,
 	}
 	shutdownErr := make(chan error)
@@ -96,7 +101,7 @@ func main() {
 			shutdownErr <- err
 		}
 	}()
-	err = srv.ListenAndServe()
+	err = srv.ListenAndServeTLS("certs/localhost.crt", "certs/localhost.key")
 	if err != nil {
 		log.Fatal(err)
 	}

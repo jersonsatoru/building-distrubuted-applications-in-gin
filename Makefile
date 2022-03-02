@@ -1,6 +1,6 @@
 .PHONY: app/run
 app/run:
-	PORT=8080 go run ./cmd/http
+	go run ./cmd/http
 
 .PHONY: db/mongodb
 db/mongodb:
@@ -25,6 +25,7 @@ db/pg:
 		-e POSTGRES_DB=app_gin \
 		postgres:14.1-alpine3.15
 
+.PHONY: db/redis
 db/redis:
 	docker stop redis || true
 	docker rm redis || true
@@ -33,3 +34,10 @@ db/redis:
 		-p 6379:6379 \
 		-v ${PWD}/redis.conf:/usr/local/etc/redis \
 		redis:7.0-rc2-alpine3.15
+
+.PHONY: auth/oauth2
+auth/oauth2:
+	curl --request POST \
+		--url https://dev-a9-nztvy.us.auth0.com/oauth/token \
+		--header 'content-type: application/json' \
+		--data '{"client_id":"ZyWQelqGRcVXGyeez3aOJMrxEKMrxesg","client_secret":"FEqckbHFKU6WoFGKtfZrrWgsE4qskpVIY1xk06G7ljSCAvgUhIkVaubl5MDZNEBW","audience":"https://dev-a9-nztvy.us.auth0.com/api/v2/","grant_type":"client_credentials"}'
