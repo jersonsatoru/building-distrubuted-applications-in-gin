@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-func GetMongoCollection(dsn string) (*mongo.Collection, error) {
+func GetMongoCollection(dsn string) (*mongo.Database, error) {
 	ctx := context.TODO()
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dsn))
 	if err != nil {
@@ -20,9 +20,9 @@ func GetMongoCollection(dsn string) (*mongo.Collection, error) {
 		return nil, err
 	}
 	log.Println("Connected to MongoDB")
-	collection := client.Database(os.Getenv("MONGO_DATABASE")).Collection("recipes")
+	database := client.Database(os.Getenv("MONGO_DATABASE"))
 	if err != nil {
 		return nil, err
 	}
-	return collection, nil
+	return database, nil
 }

@@ -1,6 +1,12 @@
+# github.com/boj/redistore v0.0.0-20180917114910-cd5dcc76aeff
+github.com/boj/redistore
 # github.com/dgrijalva/jwt-go v3.2.0+incompatible
 ## explicit
 github.com/dgrijalva/jwt-go
+# github.com/gin-contrib/sessions v0.0.4
+## explicit
+github.com/gin-contrib/sessions
+github.com/gin-contrib/sessions/redis
 # github.com/gin-contrib/sse v0.1.0
 github.com/gin-contrib/sse
 # github.com/gin-gonic/gin v1.7.7
@@ -32,8 +38,17 @@ github.com/go-stack/stack
 github.com/golang/protobuf/proto
 # github.com/golang/snappy v0.0.1
 github.com/golang/snappy
+# github.com/gomodule/redigo v2.0.0+incompatible
+github.com/gomodule/redigo/internal
+github.com/gomodule/redigo/redis
 # github.com/google/go-cmp v0.5.6
 ## explicit
+# github.com/gorilla/context v1.1.1
+github.com/gorilla/context
+# github.com/gorilla/securecookie v1.1.1
+github.com/gorilla/securecookie
+# github.com/gorilla/sessions v1.2.0
+github.com/gorilla/sessions
 # github.com/json-iterator/go v1.1.9
 github.com/json-iterator/go
 # github.com/klauspost/compress v1.13.6
@@ -55,6 +70,9 @@ github.com/modern-go/reflect2
 ## explicit
 # github.com/pkg/errors v0.9.1
 github.com/pkg/errors
+# github.com/rs/xid v1.3.0
+## explicit
+github.com/rs/xid
 # github.com/ugorji/go/codec v1.1.7
 github.com/ugorji/go/codec
 # github.com/xdg-go/pbkdf2 v1.0.0

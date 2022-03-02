@@ -9,6 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// swagger:operation POST /refresh token refreshToken
+// Refresh JWT Token
+// --
+// produces:
+// - application/jons
+// responses:
+//   '200':
+//     description: Successful operation
 func (h *AuthHandler) RefreshTokenHandler(c *gin.Context) {
 	bearer := c.GetHeader("Authorization")
 	claims := &Claims{}
